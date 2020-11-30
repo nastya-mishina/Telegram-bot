@@ -17,11 +17,12 @@ CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
 
 def parse_homework_status(homework):
     homework_name = homework.get("homework_name")
-    if homework.get("status") != "approved":
-        verdict = "К сожалению в работе нашлись ошибки."
-    else:
-        verdict = "Ревьюеру всё понравилось, можно приступать к следующему уроку."
-    return f'У вас проверили работу "{homework_name}"!\n\n{verdict}'
+    if homework_name != None:
+        if homework.get("status") != "approved":
+            verdict = "К сожалению в работе нашлись ошибки."
+        else:
+            verdict = "Ревьюеру всё понравилось, можно приступать к следующему уроку."
+        return f'У вас проверили работу "{homework_name}"!\n\n{verdict}'
 
 
 def get_homework_statuses(current_timestamp):
@@ -29,11 +30,13 @@ def get_homework_statuses(current_timestamp):
     method = "homework_statuses"
     url = base_url.format(method)
     headers = {"Authorization": f"OAuth {PRACTICUM_TOKEN}"}
+    if current_timestamp == None:
+        current_timestamp = time.time()
     params = {"from_date": current_timestamp}
     try:
         homework_statuses = requests.get(url, headers=headers, params=params)
         return homework_statuses.json()
-    except Exception as ex:
+    except requests.RequestException as ex:
         return logging.error("Error at %s", "request on server praktikum", exc_info=ex)
 
 
